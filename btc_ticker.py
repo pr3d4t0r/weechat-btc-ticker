@@ -97,7 +97,7 @@ def displayLTCTicker(data, buffer, arguments):
 
 # *** main ***
 
-weechat.register('btc-ticker', 'pr3d4t0r', '1.0-beta', 'BSD', 'Display a crypto currency ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
+weechat.register('btc_ticker', 'pr3d4t0r', '1.0-beta', 'BSD', 'Display a crypto currency ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
 
 weechat.hook_command('btc', 'Display Bitcoin ticker values in USD', '', '', '', 'displayBTCTicker', '')
 weechat.hook_command('ltc', 'Display LiteCoin ticker values in USD', '', '', '', 'displayLTCTicker', '')
