@@ -12,8 +12,8 @@ Installation and Use
 
 Supported Commands
 ------------------
-`/btc` - displays the Bitcoin in USD prices
-`/ltc` - displays the Litecoin in USD prices
+* `/btc` - displays the Bitcoin in USD prices
+* `/ltc` - displays the Litecoin in USD prices
 
 
 TODO
