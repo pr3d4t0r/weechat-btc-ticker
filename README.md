@@ -5,7 +5,7 @@ WeeChat plugin for Bitcoin, Litecoin, other cyrptocurrency ticker reporting.
 
 Installation and Use
 --------------------
-* Copy the `btc-ticker.py` file to `$HOME/.weechat/python/autoload`
+* Copy the `btc_ticker.py` file to `$HOME/.weechat/python/autoload`
 * Re-start WeeChat
 * Type /btc in any buffered window
 
