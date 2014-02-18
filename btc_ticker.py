@@ -37,68 +37,94 @@ import        json
 
 import        weechat
 
+from  time import gmtime, strftime
+
 
 # *** Symbolic constants ***
 
-BTC_URI = 'https://btc-e.com/api/2/btc_usd/ticker'
-LTC_URI = 'https://btc-e.com/api/2/ltc_usd/ticker'
+BTCE_API_URI = 'https://btc-e.com/api/2/%s_%s/ticker'
+
+DEFAULT_CRYPTO_CURRENCY = 'btc'
+DEFAULT_FIAT_CURRENCY   = 'usd'
+
+VALID_CRYPTO_CURRENCIES = [ DEFAULT_FIAT_CURRENCY, 'ltc' ]
+VALID_FIAT_CURRENCIES   = [ DEFAULT_FIAT_CURRENCY, 'eur', 'rur' ]
+
+COMMAND_NICK = 'tick'
 
 
 # *** Functions ***
 
-def fetchJSONTickerFrom(locator):
-    return urllib2.urlopen(locator).read()
+def fetchJSONTickerFrom(serviceURI):
+    return urllib2.urlopen(serviceURI).read()
 
 
 def extractRelevantInfoFrom(rawTicker):
     payload = json.loads(rawTicker)
     result  = dict()
 
-    result['avg']  = float(payload['ticker']['avg'])
-    result['buy']  = float(payload['ticker']['buy'])
-    result['high'] = float(payload['ticker']['high'])
-    result['last'] = float(payload['ticker']['last'])
-    result['low']  = float(payload['ticker']['low'])
-    result['sell'] = float(payload['ticker']['sell'])
+    result['avg']     = payload['ticker']['avg']
+    result['buy']     = payload['ticker']['buy']
+    result['high']    = payload['ticker']['high']
+    result['last']    = payload['ticker']['last']
+    result['low']     = payload['ticker']['low']
+    result['sell']    = payload['ticker']['sell']
+    result['updated'] = unicode(payload['ticker']['updated'])
+
+    result['time'] = strftime("%Y-%b-%d %H:%M:%S Z", gmtime(payload['ticker']['updated']))
 
     return result
 
 
-def display(buffer, ticker, currencyLabel):
-    output = ('%s:USD sell = %4.2f, buy = %4.2f, last = %4.2f; high = %4.2f, low = %4.2f, avg = %4.2f  ||  via BTC-e' % \
-                    (currencyLabel, \
+def display(buffer, ticker, currencyLabel, fiatCurrencyLabel):
+    output = ('%s:%s sell = %4.2f, buy = %4.2f, last = %4.2f; high = %4.2f, low = %4.2f, avg = %4.2f  ||  via BTC-e on %s' % \
+                    (currencyLabel, fiatCurrencyLabel, \
                     ticker['sell'], ticker['buy'], ticker['last'], \
-                    ticker['high'], ticker['low'], ticker['avg']))
+                    ticker['high'], ticker['low'], ticker['avg'], \
+                    ticker['time']))
 
     weechat.command(buffer, '/say %s' % output)
 
 
-def displayCurrentTicker(buffer, currencyLabel, locator):
-    rawTicker = fetchJSONTickerFrom(locator)
+def displayCurrentTicker(buffer, cryptoCurrency, fiatCurrency):
+    serviceURI = BTCE_API_URI % (cryptoCurrency, fiatCurrency)
+    rawTicker  = fetchJSONTickerFrom(serviceURI)
     
     if rawTicker is not None:
         ticker = extractRelevantInfoFrom(rawTicker)
-        display(buffer, ticker, currencyLabel)
+        display(buffer, ticker, cryptoCurrency.upper(), fiatCurrency.upper())
     else:
-        weechat.prnt(buffer, '*** UNABLE TO READ DATA FROM:  %s ***' % locator)
+        weechat.prnt(buffer, '%s\t*** UNABLE TO READ DATA FROM:  %s ***' % (COMMAND_NICK, serviceURI))
 
 
-def displayBTCTicker(data, buffer, arguments):
-    displayCurrentTicker(buffer, 'BTC', BTC_URI)
+def displayCryptoCurrencyTicker(data, buffer, arguments):
+    cryptoCurrency = DEFAULT_CRYPTO_CURRENCY
+    fiatCurrency   = DEFAULT_FIAT_CURRENCY
 
-    return weechat.WEECHAT_RC_OK
+    if len(arguments) > 0:
+        tickerArguments = arguments.split(' ') # no argparse module; these aren't CLI, but WeeChat's arguments
 
+        if len(tickerArguments) >= 1:
+            if tickerArguments[0] in VALID_CRYPTO_CURRENCIES:
+                cryptoCurrency = tickerArguments[0]
+            else:
+                weechat.prnt(buffer, '%s\tInvalid crypto currency; using default %s' % (COMMAND_NICK, DEFAULT_CRYPTO_CURRENCY))
+        
+        if len(tickerArguments) == 2:
+            if tickerArguments[1] in VALID_FIAT_CURRENCIES:
+                fiatCurrency = tickerArguments[1]
+            else:
+                weechat.prnt(buffer, '%s\tInvalid fiat currency; using default %s' % (COMMAND_NICK, DEFAULT_FIAT_CURRENCY))
 
-def displayLTCTicker(data, buffer, arguments):
-    displayCurrentTicker(buffer, 'LTC', LTC_URI)
+    displayCurrentTicker(buffer, cryptoCurrency, fiatCurrency)
 
     return weechat.WEECHAT_RC_OK
 
 
 # *** main ***
 
-weechat.register('btc_ticker', 'pr3d4t0r', '1.0-beta', 'BSD', 'Display a crypto currency ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
+weechat.register('btc_ticker', 'pr3d4t0r', '1.0-beta', 'BSD', 'Display a crypto currency spot price ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
 
-weechat.hook_command('btc', 'Display Bitcoin ticker values in USD', '', '', '', 'displayBTCTicker', '')
-weechat.hook_command('ltc', 'Display LiteCoin ticker values in USD', '', '', '', 'displayLTCTicker', '')
+weechat.hook_command(COMMAND_NICK, 'Display Bitcoin or other crypto currency spot exchange value in a fiat currency like USD or EUR',\
+            '[btc|ltc|nmc [usd|eur|rur] ]', '    btc = Bitcoin\n    ltc = Litecoin\n    nmc = Namecoin\n    usd = US dollar\n    eur = euro\n    rur = Russian ruble', '', 'displayCryptoCurrencyTicker', '')
 

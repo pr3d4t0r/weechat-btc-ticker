@@ -1,5 +1,5 @@
-WeeChat Bitcoin Ticker
-======================
+WeeChat Crypto Currency Ticker
+==============================
 WeeChat plugin for Bitcoin, Litecoin, other cyrptocurrency ticker reporting.
 
 
@@ -12,9 +12,18 @@ Installation and Use
 
 Supported Commands
 ------------------
-* `/btc` - displays the Bitcoin in USD prices
-* `/ltc` - displays the Litecoin in USD prices
+```/tick [ btc|ltc|nmc [usd|eur|rur] ]```
 
+Where:
+* btc = Bitcion
+* ltc = Litecoin
+* nmc = Namecoin  _experimental - may not always work_
+
+and:
+
+* usd = US dollar
+* eur = euro
+* rur = Russian ruble
 
 TODO
 ----
