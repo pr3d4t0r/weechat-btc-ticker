@@ -15,7 +15,7 @@ Supported Commands
 ```/tick [ btc|ltc|nmc [usd|eur|rur] ]```
 
 Where:
-* btc = Bitcion
+* btc = Bitcoin
 * ltc = Litecoin
 * nmc = Namecoin  _experimental - may not always work_
 
