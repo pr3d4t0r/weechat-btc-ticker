@@ -32,7 +32,6 @@
 # Main repository, version history:  https://github.com/pr3d4t0r/weechat-btc-ticker
 
 
-import        urllib2
 import        json
 
 import        weechat
@@ -42,7 +41,8 @@ from  time import gmtime, strftime
 
 # *** Symbolic constants ***
 
-BTCE_API_URI = 'https://btc-e.com/api/2/%s_%s/ticker'
+BTCE_API_TIME_OUT = 15000 # ms
+BTCE_API_URI      = 'curl https://btc-e.com/api/2/%s_%s/ticker'
 
 DEFAULT_CRYPTO_CURRENCY = 'btc'
 DEFAULT_FIAT_CURRENCY   = 'usd'
@@ -54,10 +54,6 @@ COMMAND_NICK = 'tick'
 
 
 # *** Functions ***
-
-def fetchJSONTickerFrom(serviceURI):
-    return urllib2.urlopen(serviceURI).read()
-
 
 def extractRelevantInfoFrom(rawTicker):
     payload = json.loads(rawTicker)
@@ -86,15 +82,30 @@ def display(buffer, ticker, currencyLabel, fiatCurrencyLabel):
     weechat.command(buffer, '/say %s' % output)
 
 
-def displayCurrentTicker(buffer, cryptoCurrency, fiatCurrency):
-    serviceURI = BTCE_API_URI % (cryptoCurrency, fiatCurrency)
-    rawTicker  = fetchJSONTickerFrom(serviceURI)
-    
+def displayCurrentTicker(buffer, rawTicker, cryptoCurrency, fiatCurrency):
     if rawTicker is not None:
         ticker = extractRelevantInfoFrom(rawTicker)
         display(buffer, ticker, cryptoCurrency.upper(), fiatCurrency.upper())
     else:
         weechat.prnt(buffer, '%s\t*** UNABLE TO READ DATA FROM:  %s ***' % (COMMAND_NICK, serviceURI))
+
+
+def tickerPayloadHandler(tickerData, service, returnCode, out, err):
+    if returnCode == weechat.WEECHAT_HOOK_PROCESS_ERROR:
+        weechat.prnt("", "%s\tError with service call '%s'" % (COMMAND_NICK, service))
+        return weechat.WEECHAT_RC_OK
+
+    tickerInfo = tickerData.split(' ')
+    displayCurrentTicker('', out, tickerInfo[0], tickerInfo[1])
+
+    return weechat.WEECHAT_RC_OK
+
+
+def fetchJSONTickerFor(cryptoCurrency, fiatCurrency):
+    serviceURI = BTCE_API_URI % (cryptoCurrency, fiatCurrency)
+    tickerData = cryptoCurrency+' '+fiatCurrency
+
+    weechat.hook_process(serviceURI, BTCE_API_TIME_OUT, 'tickerPayloadHandler', tickerData)
 
 
 def displayCryptoCurrencyTicker(data, buffer, arguments):
@@ -116,7 +127,7 @@ def displayCryptoCurrencyTicker(data, buffer, arguments):
             else:
                 weechat.prnt(buffer, '%s\tInvalid fiat currency; using default %s' % (COMMAND_NICK, DEFAULT_FIAT_CURRENCY))
 
-    displayCurrentTicker(buffer, cryptoCurrency, fiatCurrency)
+    fetchJSONTickerFor(cryptoCurrency, fiatCurrency)
 
     return weechat.WEECHAT_RC_OK
 
