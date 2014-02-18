@@ -25,8 +25,3 @@ and:
 * eur = euro
 * rur = Russian ruble
 
-TODO
-----
-Deciding how to report the ticker's time stamp.  UTC seems to be the ideal format,
-no decision has been made yet.
-
