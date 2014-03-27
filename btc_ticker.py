@@ -42,7 +42,7 @@ from  time import gmtime, strftime
 # *** Symbolic constants ***
 
 BTCE_API_TIME_OUT = 15000 # ms
-BTCE_API_URI      = 'curl https://btc-e.com/api/2/%s_%s/ticker'
+BTCE_API_URI      = 'url:https://btc-e.com/api/2/%s_%s/ticker'
 
 DEFAULT_CRYPTO_CURRENCY = 'btc'
 DEFAULT_FIAT_CURRENCY   = 'usd'
@@ -134,7 +134,7 @@ def displayCryptoCurrencyTicker(data, buffer, arguments):
 
 # *** main ***
 
-weechat.register('btc_ticker', 'pr3d4t0r', '1.0-beta', 'BSD', 'Display a crypto currency spot price ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
+weechat.register('btc_ticker', 'pr3d4t0r', '1.0', 'BSD', 'Display a crypto currency spot price ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
 
 weechat.hook_command(COMMAND_NICK, 'Display Bitcoin or other crypto currency spot exchange value in a fiat currency like USD or EUR',\
             '[btc|ltc|nmc [usd|eur|rur] ]', '    btc = Bitcoin\n    ltc = Litecoin\n    nmc = Namecoin\n    usd = US dollar\n    eur = euro\n    rur = Russian ruble', '', 'displayCryptoCurrencyTicker', '')
