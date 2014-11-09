@@ -4,7 +4,7 @@
 # Copyright (c) 2014, Eugene Ciurana (pr3d4t0r)
 # All rights reserved.
 #
-# Version 1.1
+# Version 1.1.1
 # 
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -34,11 +34,11 @@
 # Main repository, version history:  https://github.com/pr3d4t0r/weechat-btc-ticker
 
 
+from  time import gmtime, strftime
+
 import        json
 
 import        weechat
-
-from  time import gmtime, strftime
 
 
 # *** Symbolic constants ***
@@ -49,8 +49,8 @@ BTCE_API_URI      = u'url:https://btc-e.com/api/2/%s_%s/ticker'
 DEFAULT_CRYPTO_CURRENCY = u'btc'
 DEFAULT_FIAT_CURRENCY   = u'usd'
 
-VALID_CRYPTO_CURRENCIES = [ DEFAULT_CRYPTO_CURRENCY, u'BTC', u'ltc', u'LTC' ]
-VALID_FIAT_CURRENCIES   = [ DEFAULT_FIAT_CURRENCY, u'eur', u'rur', u'USD', u'EUR', u'RUR' ]
+VALID_CRYPTO_CURRENCIES = [ DEFAULT_CRYPTO_CURRENCY, u'ltc' ]
+VALID_FIAT_CURRENCIES   = [ DEFAULT_FIAT_CURRENCY, u'eur', u'rur' ]
 
 COMMAND_NICK = u'tick'
 
@@ -118,13 +118,13 @@ def displayCryptoCurrencyTicker(data, buffer, arguments):
         tickerArguments = arguments.split(u' ') # no argparse module; these aren't CLI, but WeeChat's arguments
 
         if len(tickerArguments) >= 1:
-            if tickerArguments[0] in VALID_CRYPTO_CURRENCIES:
+            if tickerArguments[0].lower() in VALID_CRYPTO_CURRENCIES:
                 cryptoCurrency = tickerArguments[0].lower()
             else:
                 weechat.prnt(buffer, u'%s\tInvalid crypto currency; using default %s' % (COMMAND_NICK, DEFAULT_CRYPTO_CURRENCY))
         
         if len(tickerArguments) == 2:
-            if tickerArguments[1] in VALID_FIAT_CURRENCIES:
+            if tickerArguments[1].lower() in VALID_FIAT_CURRENCIES:
                 fiatCurrency = tickerArguments[1].lower()
             else:
                 weechat.prnt(buffer, u'%s\tInvalid fiat currency; using default %s' % (COMMAND_NICK, DEFAULT_FIAT_CURRENCY))
