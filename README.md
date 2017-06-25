@@ -17,6 +17,7 @@ Supported Commands
 Where:
 * btc = Bitcoin
 * ltc = Litecoin
+* eth = Ethereum
 * nmc = Namecoin  _experimental - may not always work_
 
 and:
