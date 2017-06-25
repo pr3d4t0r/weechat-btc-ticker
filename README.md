@@ -12,7 +12,7 @@ Installation and Use
 
 Supported Commands
 ------------------
-```/tick [ btc|ltc|nmc [usd|eur|rur] ]```
+```/tick [ btc|ltc|eth|nmc [usd|eur|rur] ]```
 
 Where:
 * btc = Bitcoin
