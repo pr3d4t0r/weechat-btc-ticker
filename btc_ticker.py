@@ -4,7 +4,7 @@
 # Copyright (c) 2014, 2017 Eugene Ciurana (pr3d4t0r)
 # All rights reserved.
 #
-# Version 1.2.0
+# Version 2.0.0
 # 
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -45,9 +45,9 @@ import weechat
 
 # *** constants ***
 
-BTCE_API_TIME_OUT = 15000 # ms
-BTCE_API_URI      = 'url:https://btc-e.com/api/2/%s_%s/ticker'
-
+CRYPTOCUR_API_TIME_OUT  = 15000 # ms
+CRYPTOCUR_API_URI       = 'url:https://api.cryptonator.com/api/ticker/%s-%s'
+CRYPTOCUR_API_URI       = 'url:http://ciurana.eu/%s-%s'
 DEFAULT_CRYPTO_CURRENCY = 'btc'
 DEFAULT_FIAT_CURRENCY   = 'usd'
 
@@ -55,6 +55,11 @@ VALID_CRYPTO_CURRENCIES = [ DEFAULT_CRYPTO_CURRENCY, 'ltc', 'eth' ]
 VALID_FIAT_CURRENCIES   = [ DEFAULT_FIAT_CURRENCY, 'eur', 'rur' ]
 
 COMMAND_NICK = 'tick'
+
+
+# *** globals ***
+
+_buffer = None
 
 
 # *** Functions ***
@@ -95,20 +100,28 @@ def tickerPayloadHandler(tickerData, service, returnCode, out, err):
         weechat.prnt(u"", u"%s\tError with service call '%s'" % (COMMAND_NICK, service))
         return weechat.WEECHAT_RC_OK
 
+    weechat.prnt(out, ('tickerData = %s' % tickerData))
     tickerInfo = tickerData.split(' ')
-    displayCurrentTicker('', out, tickerInfo[0], tickerInfo[1])
+    weechat.prnt(out, ('tickerInfo = %s' % tickerInfo))
+    weechat.prnt(out, 'returnCode = %s' % returnCode)
+    # displayCurrentTicker('', out, tickerInfo[0], tickerInfo[1])
 
     return weechat.WEECHAT_RC_OK
 
 
 def fetchJSONTickerFor(cryptoCurrency, fiatCurrency):
-    serviceURI = BTCE_API_URI % (cryptoCurrency, fiatCurrency)
+    serviceURI = CRYPTOCUR_API_URI % (cryptoCurrency, fiatCurrency)
     tickerData = cryptoCurrency+' '+fiatCurrency
 
-    weechat.hook_process(serviceURI, BTCE_API_TIME_OUT, 'tickerPayloadHandler', tickerData)
+    if _buffer:
+        weechat.prnt(_buffer, 'serviceURI = %s, tickerData = %s' % (serviceURI, tickerData))
+
+    weechat.hook_process(serviceURI, CRYPTOCUR_API_TIME_OUT, 'tickerPayloadHandler', "")
 
 
 def displayCryptoCurrencyTicker(data, buffer, arguments):
+    global _buffer
+
     cryptoCurrency = DEFAULT_CRYPTO_CURRENCY
     fiatCurrency   = DEFAULT_FIAT_CURRENCY
 
@@ -127,6 +140,8 @@ def displayCryptoCurrencyTicker(data, buffer, arguments):
             else:
                 weechat.prnt(buffer, '%s\tInvalid fiat currency; using default %s' % (COMMAND_NICK, DEFAULT_FIAT_CURRENCY))
 
+    _buffer = buffer
+
     fetchJSONTickerFor(cryptoCurrency, fiatCurrency)
 
     return weechat.WEECHAT_RC_OK
@@ -134,7 +149,7 @@ def displayCryptoCurrencyTicker(data, buffer, arguments):
 
 # *** main ***
 
-weechat.register('btc_ticker', 'pr3d4t0r', '1.2.0', 'BSD', 'Display a crypto currency spot price ticker (BTC, LTC) in the active buffer', '', 'UTF-8')
+weechat.register('btc_ticker', 'pr3d4t0r', '2.0.0', 'BSD', 'Display a crypto currency spot price ticker (BTC, LTC, ETH) in the active buffer', '', 'UTF-8')
 
 weechat.hook_command(COMMAND_NICK, 'Display common crypto currency spot exchange values conveted to fiat currencies like USD or EUR',\
             '[btc|ltc|nmc [usd|eur|rur] ]', '    btc = Bitcoin\n    ltc = Litecoin\n    eth = Ethereum\n    nmc = Namecoin\n    usd = US dollar\n    eur = euro\n    rur = Russian ruble', '', 'displayCryptoCurrencyTicker', '')
