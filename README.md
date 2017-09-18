@@ -7,18 +7,28 @@ Installation and Use
 --------------------
 * Copy the `btc_ticker.py` file to `$HOME/.weechat/python/autoload`
 * Re-start WeeChat
-* Type /btc in any buffered window
+* Type `/tick` in any buffered window
+
+Or, if you're in a hurry:
+
+* Copy the `btc_ticker.py` file to `$HOME/.weechat/python/autoload`
+* From WeeChat:  `/script load btc_ticker.py`
 
 
 Supported Commands
 ------------------
-```/tick [ btc|ltc|eth|nmc [usd|eur|rur] ]```
+```/tick [ btc|eth|ltc|nmc|xmr|xrp|zec [usd|eur|rur] ]```
 
 Where:
+
 * btc = Bitcoin
-* ltc = Litecoin
+* dash = DASH
 * eth = Ethereum
-* nmc = Namecoin  _experimental - may not always work_
+* ltc = Litecoin
+* nmc = Namecoin
+* xmr = Monero
+* xrp = Ripple
+* zec = Zcash
 
 and:
 
