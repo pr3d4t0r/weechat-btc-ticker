@@ -1,2 +1,32 @@
-**.swp
+# editor files
+*~
+
+
+# IDE artifacts
+*.iml
+.idea/
+
+
+# build artifacts
+build/
+.gradle/
+
+
+# Python
+
+**.pytest_cache*
+**/.Python
+**/.cache*
+**/bin
+**/cherrypy/**
+**/dist
+**/include
+**/lib
+**/pip-selfcheck.json
+**/share/*
+**egg-info*
+**pyc
+**swp
+**test.txt
+**test.yaml
 
